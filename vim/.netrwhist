@@ -1,0 +1,12 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =5
+let g:netrw_dirhist_5='/global/u1/s/sleak/.local/share/jupyter/kernels/myenv_perlmutter'
+let g:netrw_dirhist_4='/mscratch/sd/s/sleak/spack-stacks/repo/packages/libtirpc'
+let g:netrw_dirhist_3='/pscratch/sd/s/sleak/spack-stacks/install/__spack_path_placeholder__/__spack_path_placeholder__/__spack_path_placeholder__/__sp/linux-sles15-zen3'
+let g:netrw_dirhist_2='/pscratch/sd/s/sleak/old-spack-stacks-devel-work/spack-stacks-tenth-try/config'
+let g:netrw_dirhist_1='/pscratch/sd/s/sleak/spack-stacks-fifth-try/envs/e4s'
+let g:netrw_dirhist_0='/opt/cray/pe/ucx/1.14.0/ucx/lib/pkgconfig'
+let g:netrw_dirhist_9='/pscratch/sd/s/sleak/spack-stacks/config'
+let g:netrw_dirhist_8='/pscratch/sd/s/sleak/spack-stacks-test/stacks/gcc/.spack-db'
+let g:netrw_dirhist_7='/global/u1/s/sleak/Software/spack-stacks/config'
+let g:netrw_dirhist_6='/global/common/software/nersc/pm-2022.12.0/etc/spack-0.19.0/config'

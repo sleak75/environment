@@ -1,0 +1,44 @@
+[user]
+  name = Steve Leak
+  email = sleak@lbl.gov
+
+[alias]
+  st = status
+  stat = status
+  sq = status -uno
+  ci = commit
+  ca = commit -a
+  # add-tracked-files-and-commit is easier to remember than ca:
+  ac = commit -a
+  acm = commit -a -m
+  cm = commit -m
+  co = checkout
+  what = show --name-only
+  lg = log --graph --abbrev-commit --date-order --format=format:'%Cblue%h%Creset%C(bold red)%d%Creset %s <%an> %Cgreen(%ar)%Creset' --all
+  slog = log --oneline --decorate
+  glog = log --graph --decorate
+  flog = log --name-status
+  shortlog = !git --no-pager log --format="%H %ai %s" | cut -c -$COLUMNS
+  info = !git_info.sh -n10 $1
+  longinfo = !git_info.sh
+  fullinfo = !git_info.sh -f
+  rl = reflog --date=iso
+[credential]
+	helper = cache --timeout 31536000
+    #helper = store --file ~/.git-credentials
+[core]
+  autocrlf = input
+  excludesfile = ~/.gitignore
+  pager = less -FX
+
+[http]
+[init]
+	templateDir = /global/homes/s/sleak/.config/git/template/
+[safe]
+	directory = /global/common/software/nersc/pm-2022q4/sw/spack-0.19.0
+	directory = /global/common/software/spackecp/perlmutter/e4s-22.11/82069/spack
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
