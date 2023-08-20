@@ -1,6 +1,6 @@
 # User additions to .bash_profile go in this file
 [[ -z $_utils_defined && -f $HOME/.bash_utils ]] && source $HOME/.bash_utils
-[[ -z $_slurm_helpers_defined && -f $HOME/Tools/slurm-helpers/functions.sh ]] && source $HOME/Tools/slurm-helpers/functions.sh
+[[ -z $_slurm_helpers_defined && -f $HOME/.slurm_utils ]] && source $HOME/.slurm_utils
 
 PS1='\[\e[1m\]\A \u@${STY%.*}${STY+.}${NERSC_HOST:-$(uname -n)}-\h:$(dirtag 2>/dev/null)\W\$\[\e[0m\] '
 

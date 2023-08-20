@@ -8,25 +8,24 @@ alias	lt='/bin/ls --color -lt'
 alias	pd='pushd'
 alias	..='popd'
 alias	ssh='ssh -Y'
-alias   mls='module list'
-alias   mld='module load'
-alias   mul='module unload'
-#alias   mav='module avail'
-alias   msh='module show'
-alias	minf='module whatis'
-alias	mswp='module swap'
-alias	mswap='module swap'
 alias sc=screen
 
 alias fix-xauth='rm -f $HOME/.Xauthority && xauth add $DISPLAY -  `mcookie`'
+
+# when we usgrsu to a user account, it's nice to get the X forwarding stuff displayed upfront
+# (paste the string this prints into the terminal as the user)
+user () 
+{ 
+  [[ -z $DISPLAY ]] || echo "export DISPLAY=$DISPLAY ; xauth add `xauth list $DISPLAY`" ; echo "alias vi='vi -u NONE'"; usgrsu $* 
+}
 
 #cat a snippet of a file with line numbers:
 lines () {
   cat -n $1 | sed -n ${2},${3}p
 }
 
-
 # tmux: (ctrl-b :kill to kill the current session)
+#alias tn='tmux new -s '
 tn () { 
   [[ -z $1 ]] && echo "need a name" && return 1
   grep "^${1} " ~/.tmux-list && echo "name conflict" && return 1
@@ -49,6 +48,7 @@ tf () {
     ssh $host
   fi
 }
+#alias ta='tmux attach -t '
 ta () {  
   [[ -z $1 ]] && tmux attach || tmux attach -t $1 
 }
@@ -59,28 +59,12 @@ tk () {
   sed -i "/^${s} /d" ~/.tmux-list && tmux kill-session -t $s || echo "kill failed"
 }
 
-#alias tn='tmux new -s '
-#alias tl='tmux list-sessions'
-#alias ta='tmux attach -t '
-
 # truncate long stdout lines
 trunc () { tput rmam ; $* ; tput smam ; }
 
 export SCREENDIR=$HOME/.screen
  
-pathadd () {
-  if ! echo "$PATH" | /bin/grep -Eq "(^|:)$1($|:)" ; then
-    if [[ "$1" == "-a" ]] ; then
-      PATH="$PATH:$2"
-    elif [[ "$1" == "-p" ]] ; then
-      PATH="$2:$PATH"
-    else
-      PATH="$PATH:$1"
-    fi
-  fi
-}
-
-# for prompt:
+# for prompt (a bit NERSC-specific):
 dirtag() { if [[ $PWD =~ /global/cscratch ]] ; then echo "CS/" ; elif [[ $PWD =~ /mscratch ]] ; then echo "MS/" ;elif [[ $PWD =~ /pscratch ]] ; then echo "PS/" ; elif [[ $PWD =~ /scratch ]] ; then echo "S/" ; elif [[ $PWD =~ /global/homes ]] ; then echo "H/" ; elif [[ $PWD =~  /project ]] ; then echo "P/" ; elif [[ $PWD =~ /cfs/cdirs ]]; then echo "C/" ; elif [[ $PWD =~ /global/common/software ]]; then echo "GCS/" ; fi ; }
 
 findgrep () {
@@ -155,22 +139,45 @@ context() {
   fi
 }
 
-# for sacct:
-#alias jobsummary='sacct -a -o JobID%-20,User,Submit,Start,End,State,ExitCode,DerivedExitCode,Elapsed,Timelimit,NNodes,NCPUS,NTasks'
-alias mysqueue='squeue -O jobid,arraytaskid,username,account,partition,qos,maxnodes,maxcpus,timelimit,prioritylong,submittime,eligibletime,starttime,reasonlist'
-
 lth () { pattern=$*; unset count; unset d; if [[ -n $* ]] ; then if [[ $1 =~ ^-[0-9]+$ ]] ; then count=$(($1-1)) ; shift ; pattern=$* ; elif [[ ! $1 =~ ^- && ! -d $1 ]]; then d='-d' ; fi ; fi ; ls -lt $d $pattern | head $count ; }
 latest () { local count="-1"; local opts=""; if [[ -n $* ]] ; then while [[ $1 =~ ^- ]] ; do if [[ $1 =~ ^-[0-9]+$ ]] ; then count=$1 ; else opts+=" $1" ; fi ; shift ; done ; fi ; /bin/ls -t $opts $* | head $count; }
 
+alias   mls='module list'
+alias   mld='module load'
+alias   mul='module unload'
+alias   msh='module show'
+alias	minf='module whatis'
+alias	mswp='module swap'
+alias	mswap='module swap'
 mav () { module avail $* 2>&1 ; }
+# names of modules I have currently loaded
+loaded () { module list 2>&1 | awk 'NR>1 {print $2}' ; }
+#stash () { _stash=$(loaded) ; }
+#unstash () { [[ -n "$_stash" ]] && module load $_stash ; }
+
+# cori-specific
+function mreset () {
+module purge
+module load modules
+module load nsg
+module load intel
+module load craype
+module load PrgEnv-cray
+module swap PrgEnv-cray PrgEnv-intel
+case "$NERSC_HOST" in
+  cori) module load craype-haswell ;;
+  edison) module load craype-ivybridge ;
+          export CRAY_CPU_TARGET=sandybridge ;;
+esac
+module load cray-mpich
+module load altd
+module load darshan
+}
+
 
 myps () {
   local ncores=$(lscpu | awk '/^Thread\(s\) per core/ {tpc=$NF} /^CPU\(s\):/ {cpus=$NF} END {print cpus/tpc}')
-#  if [[ -z $1 ]]; then
     local awkscr="NR==1 {print \"core \"\$0; next} ;  { core=int(\$1%$ncores) ; printf(\"%4i %s\n\",core,\$0) | \"sort -sn -k1\"}"
-#  else
-#    local awkscr="NR==1 {print \"core \"\$0; next} ; \$11 ~ /^${1::8}/ { core=int(\$1%$ncores) ; printf(\"%4i %s\n\",core,\$0) | \"sort -sn -k1\"}"
-#  fi
   ps H -o psr,tid,pid,ppid,pgid,nlwp,pcpu,time,rss,size,args --sort=pid,tid $@ | awk "$awkscr"
 }  
   
@@ -191,32 +198,6 @@ ssdiff ()
 }
 
 function termname () { PROMPT_COMMAND='echo -ne "\033]0;'"$*"'\007"' ; }
-
-# names of modules I have currently loaded
-loaded () { module list 2>&1 | awk 'NR>1 {print $2}' ; }
-#stash () { _stash=$(loaded) ; }
-#unstash () { [[ -n "$_stash" ]] && module load $_stash ; }
-
-function showq2 () 
-{ 
-  #local schedparams=$(scontrol show config | grep '^SchedulerParameters')
-  #local bf_min_prio_reserve=$(sed 's/.*bf_min_prio_reserve=\([^,]*\),.*/\1/' <<< "$schedparams")  # min priority scheduler considers
-  #local bf_window=$(sed 's/.*bf_window=\([^,]*\),.*/\1/' <<< "$schedparams")                      # if cant schedule within this many mins, give up
-  local fmt='%.18i %.4t %.8u %.8a %.16P %.18q %.6D %.6C %.10l %.10L %.10Q %.20V %.20S %.12r %e'
-  local ready='-e Priority -e Resources' 
-  local pending=$(SLURM_TIME_FORMAT='%s' squeue -r -t PD -o "$fmt" | awk 'NR > 1 {print $0 | "sort -rsn -k11"}')
-  local pd=$(grep $ready <<< "$pending" ; grep -v $ready <<< "$pending") 
-  local wholeq=$(SLURM_TIME_FORMAT='%s' squeue -r -t R  -o "$fmt" | awk 'NR == 1 { print "  Q_pos " $0 }  NR > 1 {print "     0  " $0 | "sort -rsn -k13"}' ; nl <<<"$pd" )
-  if [[ $# -gt 0 ]]; then 
-    local search="" 
-    for t in $* ; do 
-      search+=" -e $t" 
-    done
-    body grep $search <<< "$wholeq" | less -FX
-  else 
-    less -FX <<< "$wholeq" 
-  fi
-}
 
 function sec_to_hms ()
 {
@@ -241,23 +222,50 @@ function sec_to_hms ()
         return 0
 }
 
-# cori-specific
-function mreset () {
-module purge
-module load modules
-module load nsg
-module load intel
-module load craype
-module load PrgEnv-cray
-module swap PrgEnv-cray PrgEnv-intel
-case "$NERSC_HOST" in
-  cori) module load craype-haswell ;;
-  edison) module load craype-ivybridge ;
-          export CRAY_CPU_TARGET=sandybridge ;;
-esac
-module load cray-mpich
-module load altd
-module load darshan
+dhms_to_sec () 
+{
+  local usage="$0 D:H:M:S"$'\n'
+  usage+='print number of seconds corresponding to a timespan'$'\n'
+  usage+='copes with leading negative sign'$'\n'
+  usage+='accepted formats are:'$'\n'
+  usage+='  [-][[[D:]H:]M:]S'$'\n'
+  usage+='  [-][[[D-]H:]M:]S'$'\n'
+  usage+='Examples:'$'\n'
+  usage+='  1-12:00:00     1 day 12 hours'$'\n'
+  usage+='  2:00:01:00     2 days and 1 minute'$'\n'
+  usage+='  -30:00         negative half an hour'$'\n'
+  if [[ $# -ne 1 || $1 =~ ^-h ]] ; then
+    echo "$usage"
+    return 1
+  else
+    local total=0
+    local -a mult=(1 60 3600 86400)
+    # deal with leading -ive sign and turns day separator to :
+    local a=${1:0:1}
+    local b=${1:1}
+    local IFS=':'
+    local -a val=(${a}${b/-/:})
+    unset IFS
+    # leading "-" sign will now be ":"
+    if [[ ${val[0]} =~ ^(-?)([0-9]+)$ ]]; then
+      # deal with negatives:
+      local sign=${BASH_REMATCH[1]}
+      val[0]=${BASH_REMATCH[2]}
+      local i=${#val[@]}
+      local j=0
+      (( i > 4 )) && return 1
+      while (( i > 0 )); do
+        let i-=1
+        let total+=$(( ${val[$i]/#0}*${mult[$j]} ))
+        let j+=1
+      done
+      #_retstr=
+      printf "%s\n" "${sign}${total}"
+      return 0
+    fi
+  fi
+  echo "$usage"
+  return 1
 }
 
 function walk () {
