@@ -4,6 +4,8 @@
 
 PS1='\[\e[1m\]\A \u@${STY%.*}${STY+.}${NERSC_HOST:-$(uname -n)}-\h:$(dirtag 2>/dev/null)\W\$\[\e[0m\] '
 
+[[ -f $HOME/.inputrc ]] && bind -f $HOME/.inputrc 
+
 # python3 environments install their own sqlite3 client without readline,
 # which is quite annoying, so make sure to use the system sqlite3 exec:
 alias sqlite3=/usr/bin/sqlite3
