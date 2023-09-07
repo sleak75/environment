@@ -2,7 +2,7 @@
 [[ -z $_utils_defined && -f $HOME/.bash_utils ]] && source $HOME/.bash_utils
 [[ -z $_slurm_helpers_defined && -f $HOME/.slurm_utils ]] && source $HOME/.slurm_utils
 
-PS1='\[\e[1m\]\A \u@${STY%.*}${STY+.}${NERSC_HOST:-$(uname -n)}-\h:$(dirtag 2>/dev/null)\W\$\[\e[0m\] '
+PS1='\[\e[1m\]\A \u@${STY%.*}${STY+.}${NERSC_HOST:-\h}:$(dirtag 2>/dev/null)\W\$\[\e[0m\] '
 
 # python3 environments install their own sqlite3 client without readline,
 # which is quite annoying, so make sure to use the system sqlite3 exec:
