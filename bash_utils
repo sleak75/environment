@@ -26,12 +26,15 @@ lines () {
 
 # tmux: (ctrl-b :kill to kill the current session)
 #alias tn='tmux new -s '
+unalias tn 2>/dev/null 
 tn () { 
   [[ -z $1 ]] && echo "need a name" && return 1
   grep "^${1} " ~/.tmux-list && echo "name conflict" && return 1
   echo "$1 $(hostname)" >> ~/.tmux-list 
   tmux new -s $1
 } 
+
+unalias tf 2>/dev/null 
 tf () {
   if [[ -z $1 ]] ; then
     #tmux list-sessions >&2
@@ -49,10 +52,12 @@ tf () {
   fi
 }
 #alias ta='tmux attach -t '
+unalias ta 2>/dev/null 
 ta () {  
   [[ -z $1 ]] && tmux attach || tmux attach -t $1 
 }
 alias tl='cat ~/.tmux-list'
+unalias tk 2>/dev/null 
 tk () {
   local s
   [[ -z $1 ]] && s=`tmux display-message -p '#S'` || s=$1
@@ -140,7 +145,23 @@ context() {
 }
 
 lth () { pattern=$*; unset count; unset d; if [[ -n $* ]] ; then if [[ $1 =~ ^-[0-9]+$ ]] ; then count=$(($1-1)) ; shift ; pattern=$* ; elif [[ ! $1 =~ ^- && ! -d $1 ]]; then d='-d' ; fi ; fi ; ls -lt $d $pattern | head $count ; }
-latest () { local count="-1"; local opts=""; if [[ -n $* ]] ; then while [[ $1 =~ ^- ]] ; do if [[ $1 =~ ^-[0-9]+$ ]] ; then count=$1 ; else opts+=" $1" ; fi ; shift ; done ; fi ; /bin/ls -t $opts $* | head $count; }
+latest () { 
+  local count="-1" 
+  local opts="" 
+  #local args=""
+  if [[ -n $* ]] ; then 
+    while [[ $1 =~ ^- ]] ; do 
+      if [[ $1 =~ ^-[0-9]+$ ]] ; then 
+        count=$1 
+      else opts+=" $1" 
+      fi
+      shift
+    done
+  fi
+  #for a in $* ; do args+=" $(realpath $a)" ; done
+  #echo $args
+  /bin/ls -t $opts $* | head $count
+}
 
 alias   mls='module list'
 alias   mld='module load'

@@ -1,7 +1,8 @@
 [[ -z $_utils_defined && -f $HOME/.bash_utils ]] && source $HOME/.bash_utils
 [[ -z $_slurm_helpers_defined && -f $HOME/.slurm_utils ]] && source $HOME/.slurm_utils
 
-PS1='\[\e[1m\]\A \u@${STY%.*}${STY+.}${NERSC_HOST:-\h}:$(dirtag 2>/dev/null)\W\$\[\e[0m\] '
+# PS1='\[\e[1m\]\A \u@${STY%.*}${STY+.}${NERSC_HOST:-\h}:$(dirtag 2>/dev/null)\W\$\[\e[0m\] '
+PS1='\[\e[1m\]\A \W\$\[\e[0m\] '
 
 [[ -f $HOME/.inputrc ]] && bind -f $HOME/.inputrc 
 
@@ -13,7 +14,11 @@ alias sqlite3=/usr/bin/sqlite3
 alias vi='vim -p'
 alias view='vim -p -R'
 
-export PS_FORMAT=user,pgid,ppid,pid,nlwp,pcpu,rss,stime,s,wchan:10,cmd
+#alias tn='tmux new -s'
+#alias tl='tmux ls'
+#alias ta='tmux a -t'
+
+export PS_FORMAT=user,pgid,ppid,pid,nlwp,pcpu,rss,stime,s,wchan:15,cmd
 #alias ps='ps -H'
 #alias ps='ps -H -o user,pgid,ppid,pid,nlwp,pcpu,rss,etimes,s,wchan,cmd --sort user,pgid'
 
@@ -33,3 +38,7 @@ export LS_COLORS
 
 # I usually want bashrc things in login env too:
 [[ -f $HOME/.bashrc ]] && . $HOME/.bashrc
+
+# bun - in /usr/local/bin
+#export BUN_INSTALL="$HOME/.bun"
+#export PATH="$BUN_INSTALL/bin:$PATH"

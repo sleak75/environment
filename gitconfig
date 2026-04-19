@@ -34,6 +34,7 @@
 [http]
 [init]
 	templateDir = /global/homes/s/sleak/.config/git/template/
+	defaultBranch = main
 [safe]
 	directory = /global/common/software/nersc/pm-2022q4/sw/spack-0.19.0
 	directory = /global/common/software/spackecp/perlmutter/e4s-22.11/82069/spack

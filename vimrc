@@ -26,6 +26,7 @@ vnoremap , @
 
 " -- don't autowrap, but nudge me ..
 set colorcolumn=90
+set textwidth=90  "now gql should wrap the current line to 90 chars 
 
 " -- folding --
 set foldmethod=indent
@@ -44,7 +45,8 @@ imap <S-Up> <Up>
 nmap <S-Down> <Down>
 imap <S-Down> <Down>
 " start unfolded:
-au BufRead * normal zR
+"au BufRead * normal zR
+autocmd BufWinEnter * silent! :%foldopen!
 
 " indent guides:
 " (git://github.com/nathanaelkane/vim-indent-guides.git)
